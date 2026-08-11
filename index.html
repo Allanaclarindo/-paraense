@@ -1,0 +1,1005 @@
+ <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viagem pro Pará</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep: #07211d;
+    --bg-deep2: #0d3530;
+    --panel: #123832;
+    --panel-line: #23594f;
+    --text: #eef7f0;
+    --text-dim: #a3c9bc;
+    --soma: #f2a93a;      /* parada Ver-o-Peso (dourado) */
+    --soma-dark: #d4820f;
+    --mult: #7b4fb0;      /* parada Feira do Açaí (roxo) */
+    --mult-dark: #5c3a87;
+    --div: #1f9e82;       /* parada Igarapé (verde-água) */
+    --div-dark: #147a63;
+    --misto: #2f8fd4;     /* Rio Tocantins (azul) */
+    --misto-dark: #1c6bab;
+    --alg: #5aa632;       /* Trilha da Mata (verde-folha) */
+    --alg-dark: #3d7a20;
+    --geo: #c8672f;       /* Cerâmica Marajoara (barro) */
+    --geo-dark: #a34f1f;
+    --danger: #ff5c72;
+    --gold: #ffd75e;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    background:
+      linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.10) 40%, rgba(255,255,255,0.10) 58%, transparent 58%),
+      radial-gradient(circle at 82% 10%, rgba(37,80,201,0.22), transparent 42%),
+      radial-gradient(circle at 12% 88%, rgba(214,32,38,0.20), transparent 48%),
+      radial-gradient(ellipse 60% 40% at 15% 10%, rgba(31,158,130,0.12), transparent),
+      radial-gradient(ellipse 50% 35% at 85% 15%, rgba(123,79,176,0.14), transparent),
+      radial-gradient(ellipse 50% 40% at 50% 100%, rgba(47,143,212,0.12), transparent),
+      linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-deep2) 100%);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* vagalumes na noite amazônica */
+  .stars, .stars2 {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-repeat: repeat;
+  }
+  .stars {
+    background-image:
+      radial-gradient(1.5px 1.5px at 20px 30px, #ffe9a8, transparent),
+      radial-gradient(1.5px 1.5px at 90px 80px, #d9f5c8, transparent),
+      radial-gradient(1px 1px at 140px 20px, #ffe9a8, transparent),
+      radial-gradient(1px 1px at 200px 120px, #d9f5c8, transparent),
+      radial-gradient(1.5px 1.5px at 250px 60px, #ffe9a8, transparent),
+      radial-gradient(1px 1px at 30px 150px, #d9f5c8, transparent);
+    background-size: 280px 200px;
+    opacity: 0.45;
+  }
+
+  .app {
+    position: relative; z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 20px 18px 40px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1, h2, h3 { font-family: 'Baloo 2', sans-serif; margin: 0; }
+
+  /* ---------- HEADER / TOPBAR (game screen) ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .hearts { display:flex; gap:3px; font-size: 16px; }
+
+  /* ---------- RIVER TRAIL (signature element) ---------- */
+  .trail-wrap {
+    position: relative;
+    height: 74px;
+    margin: 6px 0 22px;
+  }
+  .trail-line {
+    position: absolute;
+    top: 50%; left: 4%; right: 4%;
+    height: 6px;
+    border-radius: 4px;
+    background: var(--panel-line);
+    transform: translateY(-50%);
+    overflow: hidden;
+  }
+  .trail-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--op-dark, var(--misto-dark)), var(--op-color, var(--misto)));
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+  }
+  .planet {
+    position: absolute;
+    top: 50%;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    border: 2px solid var(--bg-deep2);
+    box-shadow: 0 0 0 2px var(--panel-line);
+    transition: box-shadow .3s;
+  }
+  .planet.done { box-shadow: 0 0 0 2px var(--gold), 0 0 10px 2px rgba(255,215,94,0.6); }
+  .rocket {
+    position: absolute;
+    top: 50%; left: 0%;
+    font-size: 24px;
+    transform: translate(-50%, -55%);
+    transition: left .5s cubic-bezier(.4,0,.2,1);
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.3));
+  }
+
+  /* ---------- START SCREEN ---------- */
+  .hero {
+    position: relative;
+    z-index: 0;
+    text-align: center;
+    padding: 18px 6px 8px;
+  }
+  .hero::before {
+    content: '★';
+    position: absolute;
+    top: -6px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 170px;
+    line-height: 1;
+    color: rgba(37,80,201,0.18);
+    z-index: -1;
+    pointer-events: none;
+  }
+  .hero .eyebrow {
+    display: inline-block;
+    font-weight: 800; font-size: 12px; letter-spacing: 1.5px;
+    color: var(--gold); text-transform: uppercase;
+    background: rgba(255,215,94,0.1);
+    border: 1px solid rgba(255,215,94,0.3);
+    padding: 5px 12px; border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-size: 34px; line-height: 1.15;
+    background: linear-gradient(90deg, #fff, #cdeee0 60%, var(--misto));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 10px;
+  }
+  .hero p { color: var(--text-dim); font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .dedication {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gold);
+    margin-top: -6px;
+    margin-bottom: 4px;
+  }
+
+  .rocket-hero {
+    font-size: 52px;
+    display: block;
+    margin: 14px 0 6px;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-10px) rotate(4deg); }
+  }
+
+  .op-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 22px 0 8px;
+  }
+  .op-card {
+    position: relative;
+    background: var(--panel);
+    border: 2px solid var(--panel-line);
+    border-radius: 18px;
+    padding: 18px 14px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    transition: transform .15s, border-color .15s, background .15s;
+  }
+  .op-card:active { transform: scale(0.97); }
+  .op-card.selected {
+    border-color: var(--op-card-color);
+    background: linear-gradient(160deg, var(--panel), rgba(255,255,255,0.03));
+    box-shadow: 0 0 0 1px var(--op-card-color), 0 6px 18px -6px var(--op-card-color);
+  }
+  .op-card .planet-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 20px; margin-bottom: 10px;
+    background: var(--op-card-color);
+  }
+  .op-card .op-name { font-family:'Baloo 2', sans-serif; font-weight: 700; font-size: 17px; }
+  .op-card .op-desc { font-size: 12px; color: var(--text-dim); font-weight: 700; margin-top: 2px; }
+
+  .start-btn {
+    display: block;
+    width: 100%;
+    margin-top: 22px;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(90deg, var(--gold), #ffb020);
+    color: #241900;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 19px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px -6px rgba(255,183,32,0.5);
+    transition: transform .15s;
+  }
+  .start-btn:active { transform: scale(0.98); }
+  .start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ---------- QUESTION CARD ---------- */
+  .question-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    border-radius: 22px;
+    padding: 30px 20px 26px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 260px;
+  }
+  .question-label {
+    font-size: 13px; font-weight: 800; letter-spacing: 1px;
+    color: var(--op-color);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .question-text {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 46px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 26px;
+    transition: font-size .15s;
+  }
+  .question-text.long-text {
+    font-size: 23px;
+    line-height: 1.4;
+    letter-spacing: 0;
+    white-space: pre-line;
+  }
+  .answers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .answer-btn {
+    padding: 16px 8px;
+    border-radius: 14px;
+    border: 2px solid var(--panel-line);
+    background: rgba(255,255,255,0.03);
+    color: var(--text);
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .1s, border-color .15s, background .15s;
+  }
+  .answer-btn.small-text { font-size: 16px; }
+  .answer-btn:active { transform: scale(0.96); }
+  .answer-btn.correct { background: rgba(31,158,130,0.22); border-color: var(--div); }
+  .answer-btn.wrong { background: rgba(255,92,114,0.18); border-color: var(--danger); }
+  .answer-btn:disabled { cursor: default; }
+
+  .timer-bar-wrap {
+    height: 6px; background: var(--panel-line); border-radius: 4px; overflow: hidden; margin-top: 22px;
+  }
+  .timer-bar {
+    height: 100%; width: 100%; background: var(--op-color);
+    transform-origin: left;
+  }
+
+  /* ---------- END SCREEN ---------- */
+  .end-wrap { text-align: center; padding-top: 30px; }
+  .end-stars { font-size: 44px; margin: 14px 0 6px; letter-spacing: 6px; }
+  .end-msg { font-size: 15px; color: var(--text-dim); font-weight: 700; margin-bottom: 22px; }
+  .end-stats {
+    display: flex; justify-content: center; gap: 10px; margin-bottom: 26px; flex-wrap: wrap;
+  }
+  .end-stat-box {
+    background: var(--panel); border: 1px solid var(--panel-line);
+    border-radius: 14px; padding: 14px 18px; min-width: 96px;
+  }
+  .end-stat-box .num { font-family:'Baloo 2',sans-serif; font-size: 26px; font-weight: 700; }
+  .end-stat-box .lbl { font-size: 11px; color: var(--text-dim); font-weight: 800; text-transform: uppercase; }
+
+  .secondary-btn {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 13px 22px;
+    border-radius: 14px;
+    border: 2px solid var(--panel-line);
+    background: transparent;
+    color: var(--text);
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .feedback-msg {
+    font-size: 13px; font-weight: 800; margin-top: 16px; min-height: 18px;
+    color: var(--text-dim);
+  }
+
+  .hidden { display: none !important; }
+
+  .marajoara-band {
+    height: 10px;
+    border-radius: 6px;
+    margin: 4px 0 18px;
+    background:
+      repeating-linear-gradient(135deg,
+        var(--geo) 0px, var(--geo) 8px,
+        var(--soma) 8px, var(--soma) 16px,
+        var(--div) 16px, var(--div) 24px);
+    opacity: 0.85;
+  }
+
+  .flag-para {
+    width: 54px;
+    height: 38px;
+    margin: 0 auto 12px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    background: #d62026;
+    box-shadow: 0 2px 8px -2px rgba(0,0,0,0.5);
+  }
+  .flag-para::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 42%, #ffffff 42%, #ffffff 58%, transparent 58%);
+  }
+  .flag-para::after {
+    content: '★';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    color: #2550c9;
+  }
+    position: fixed;
+    top: 14px; right: 14px;
+    z-index: 20;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--panel-line);
+    color: var(--text);
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px -4px rgba(0,0,0,0.5);
+  }
+  .music-toggle-fixed:active { transform: scale(0.94); }
+
+  @media (max-width: 380px) {
+    .question-text { font-size: 38px; }
+    .question-text.long-text { font-size: 19px; }
+    .hero h1 { font-size: 28px; }
+  }
+
+  :focus-visible { outline: 3px solid var(--misto); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rocket-hero { animation: none; }
+    .trail-fill, .rocket { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<button class="music-toggle-fixed music-toggle" id="music-toggle-fixed" aria-label="Ligar ou desligar som">🎵</button>
+<div class="app">
+
+  <div class="marajoara-band"></div>
+
+  <!-- ============ START SCREEN ============ -->
+  <div id="screen-start">
+    <div class="hero">
+      <div class="flag-para" aria-label="Bandeira do Pará"></div>
+      <span class="eyebrow">Viagem pro Tocantins</span>
+      <div class="dedication">❤️ Para Bento Clarindo Barroso</div>
+      <span class="rocket-hero">🛶</span>
+      <h1>Desça o rio<br>resolvendo as contas!</h1>
+      <p>Égua, bora começar? Escolhe uma parada aí embaixo</p>
+    </div>
+
+    <div class="op-grid" id="op-grid">
+      <button class="op-card" data-op="soma" style="--op-card-color:var(--soma)">
+        <div class="planet-icon">🧺</div>
+        <div class="op-name">Ver-o-Peso</div>
+        <div class="op-desc">Adição</div>
+      </button>
+      <button class="op-card" data-op="mult" style="--op-card-color:var(--mult)">
+        <div class="planet-icon">🫐</div>
+        <div class="op-name">Feira do Açaí</div>
+        <div class="op-desc">Tabuada</div>
+      </button>
+      <button class="op-card" data-op="div" style="--op-card-color:var(--div)">
+        <div class="planet-icon">🌊</div>
+        <div class="op-name">Travessia do Igarapé</div>
+        <div class="op-desc">Divisão exata</div>
+      </button>
+      <button class="op-card" data-op="alg" style="--op-card-color:var(--alg)">
+        <div class="planet-icon">🍃</div>
+        <div class="op-name">Trilha da Mata</div>
+        <div class="op-desc">Termos com x</div>
+      </button>
+      <button class="op-card" data-op="geo" style="--op-card-color:var(--geo)">
+        <div class="planet-icon">🏺</div>
+        <div class="op-name">Cerâmica Marajoara</div>
+        <div class="op-desc">Área e perímetro</div>
+      </button>
+      <button class="op-card" data-op="misto" style="--op-card-color:var(--misto)">
+        <div class="planet-icon">🛶</div>
+        <div class="op-name">Rio Tocantins</div>
+        <div class="op-desc">Tudo junto</div>
+      </button>
+    </div>
+
+    <button class="start-btn" id="btn-launch" disabled>Escolha uma parada</button>
+  </div>
+
+  <!-- ============ GAME SCREEN ============ -->
+  <div id="screen-game" class="hidden" style="flex:1; display:flex; flex-direction:column;">
+    <div class="topbar">
+      <div class="stat">⭐ <span id="score-val">0</span></div>
+      <div class="hearts" id="hearts">❤️❤️❤️</div>
+      <div class="stat">🔥 <span id="streak-val">0</span></div>
+      <button class="stat music-toggle" id="music-toggle-game" style="cursor:pointer;">🎵</button>
+    </div>
+
+    <div class="trail-wrap">
+      <div class="trail-line"><div class="trail-fill" id="trail-fill"></div></div>
+      <div class="rocket" id="rocket-icon">🛶</div>
+      <div class="planet" id="planet-1" style="left:20%; background:var(--soma)">🏙️</div>
+      <div class="planet" id="planet-2" style="left:45%; background:var(--mult)">🧺</div>
+      <div class="planet" id="planet-3" style="left:70%; background:var(--div)">🌊</div>
+      <div class="planet" id="planet-4" style="left:95%; background:var(--misto)">🏘️</div>
+    </div>
+
+    <div class="question-card">
+      <div class="question-label" id="question-label">PARADA</div>
+      <div class="question-text" id="question-text">7 + 5</div>
+      <div class="answers" id="answers"></div>
+      <div class="feedback-msg" id="feedback-msg">&nbsp;</div>
+      <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+    </div>
+  </div>
+
+  <!-- ============ END SCREEN ============ -->
+  <div id="screen-end" class="hidden">
+    <div class="end-wrap">
+      <div class="marajoara-band" style="max-width:220px; margin-left:auto; margin-right:auto;"></div>
+      <div class="eyebrow" style="display:inline-block;">Viagem concluída</div>
+      <div class="end-stars" id="end-stars">⭐⭐⭐</div>
+      <h2 id="end-title" style="font-size:26px;">Ótimo trabalho, navegador!</h2>
+      <div class="end-msg" id="end-msg">Você mandou muito bem nessa viagem.</div>
+      <div class="end-stats">
+        <div class="end-stat-box"><div class="num" id="end-score">0</div><div class="lbl">Pontos</div></div>
+        <div class="end-stat-box"><div class="num" id="end-correct">0/0</div><div class="lbl">Acertos</div></div>
+        <div class="end-stat-box"><div class="num" id="end-best-streak">0</div><div class="lbl">Sequência</div></div>
+      </div>
+      <button class="start-btn" id="btn-again" style="max-width:280px;">Viajar de novo</button>
+      <br>
+      <button class="secondary-btn" id="btn-menu">Escolher outra parada</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const OPS = {
+    soma:  { label: 'Ver-o-Peso · Adição',                 color: 'var(--soma)',  dark: 'var(--soma-dark)' },
+    mult:  { label: 'Feira do Açaí · Tabuada',              color: 'var(--mult)',  dark: 'var(--mult-dark)' },
+    div:   { label: 'Travessia do Igarapé · Divisão',       color: 'var(--div)',   dark: 'var(--div-dark)' },
+    alg:   { label: 'Trilha da Mata · Termos com x',        color: 'var(--alg)',   dark: 'var(--alg-dark)' },
+    geo:   { label: 'Cerâmica Marajoara · Área e perímetro',color: 'var(--geo)',   dark: 'var(--geo-dark)' },
+    misto: { label: 'Rio Tocantins · Tudo junto',           color: 'var(--misto)', dark: 'var(--misto-dark)' },
+  };
+
+  const TOTAL_QUESTIONS = 10;
+  const TIME_PER_Q = 12000; // ms
+
+  let selectedOp = null;
+  let state = {};
+
+  const $ = id => document.getElementById(id);
+
+  // ---------- ÁUDIO (efeitos e "musiquinha" de fundo, tudo sintetizado no navegador) ----------
+  let audioCtx = null;
+  let musicOn = true;
+  let musicTimer = null;
+
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function tone(freq, start, dur, type, peak) {
+    const ctx = getCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(peak || 0.15, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + dur + 0.05);
+  }
+
+  function playClick() {
+    const t = getCtx().currentTime;
+    tone(520, t, 0.07, 'triangle', 0.10);
+  }
+  function playCorrect() {
+    const t = getCtx().currentTime;
+    tone(523.25, t, 0.12, 'triangle', 0.15);
+    tone(659.25, t + 0.09, 0.12, 'triangle', 0.15);
+    tone(783.99, t + 0.18, 0.18, 'triangle', 0.15);
+  }
+  function playWrong() {
+    const t = getCtx().currentTime;
+    tone(220, t, 0.18, 'sawtooth', 0.10);
+    tone(174, t + 0.12, 0.22, 'sawtooth', 0.10);
+  }
+  function playTimeout() {
+    const t = getCtx().currentTime;
+    tone(300, t, 0.14, 'square', 0.08);
+    tone(220, t + 0.12, 0.14, 'square', 0.08);
+    tone(150, t + 0.24, 0.2, 'square', 0.08);
+  }
+
+  // ritmo de fundo inspirado no carimbó: curimbó grave + ganzá agudo em loop
+  function scheduleMusicBeat() {
+    if (!musicOn) return;
+    const ctx = getCtx();
+    const t = ctx.currentTime + 0.05;
+    const beat = 0.42;
+    tone(90, t, 0.16, 'sine', 0.07);
+    tone(90, t + beat * 2, 0.16, 'sine', 0.07);
+    tone(1500, t + beat, 0.04, 'square', 0.02);
+    tone(1500, t + beat * 3, 0.04, 'square', 0.02);
+    musicTimer = setTimeout(scheduleMusicBeat, beat * 4 * 1000);
+  }
+  function startMusic() {
+    if (musicTimer) return;
+    musicOn = true;
+    scheduleMusicBeat();
+    updateMusicBtn();
+  }
+  function stopMusic() {
+    musicOn = false;
+    clearTimeout(musicTimer);
+    musicTimer = null;
+    updateMusicBtn();
+  }
+  function updateMusicBtn() {
+    document.querySelectorAll('.music-toggle').forEach(b => b.textContent = musicOn ? '🎵' : '🔇');
+  }
+
+  document.querySelectorAll('.music-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      getCtx();
+      if (musicOn) stopMusic(); else startMusic();
+      playClick();
+    });
+  });
+
+  // ---------- START SCREEN ----------
+  const opCards = document.querySelectorAll('.op-card');
+  opCards.forEach(card => {
+    card.addEventListener('click', () => {
+      playClick();
+      opCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedOp = card.dataset.op;
+      const btn = $('btn-launch');
+      btn.disabled = false;
+      btn.textContent = '🛶 Zarpar!';
+    });
+  });
+
+  $('btn-launch').addEventListener('click', () => {
+    if (!selectedOp) return;
+    playClick();
+    startMusic();
+    startGame(selectedOp);
+  });
+
+  $('btn-again').addEventListener('click', () => { playClick(); startGame(selectedOp); });
+  $('btn-menu').addEventListener('click', () => {
+    playClick();
+    $('screen-end').classList.add('hidden');
+    $('screen-start').classList.remove('hidden');
+  });
+
+  // ---------- HELPERS ----------
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function shuffleArr(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = randInt(0, i);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // numeric distractors around a correct integer answer, formatted with optional unit/suffix
+  function numericOptions(answerNum, format) {
+    format = format || (n => String(n));
+    const options = new Set([format(answerNum)]);
+    while (options.size < 4) {
+      let delta = randInt(-6, 6);
+      if (delta === 0) delta = 3;
+      let fake = answerNum + delta;
+      if (fake < 0) fake = answerNum + Math.abs(delta) + 1;
+      options.add(format(fake));
+    }
+    return shuffleArr(Array.from(options));
+  }
+
+  // ---------- QUESTION GENERATORS ----------
+  function genSoma() {
+    if (Math.random() < 0.5) {
+      const a = randInt(10, 89), b = randInt(10, 89);
+      const answerNum = a + b;
+      return { text: `${a} + ${b}`, answer: String(answerNum), options: numericOptions(answerNum) };
+    }
+    const a = randInt(5, 45), b = randInt(5, 45);
+    const answerNum = a + b;
+    const templates = [
+      `No Ver-o-Peso, seu João vendeu ${a} kg de camarão de manhã e ${b} kg à tarde.\nQuantos kg ele vendeu no total?`,
+      `Dona Raimunda colheu ${a} litros de açaí no barracão e ${b} litros na feira.\nQuantos litros ela colheu ao todo?`,
+      `Na canoa foram ${a} sacas de farinha na primeira viagem e ${b} na segunda.\nQuantas sacas foram levadas ao todo?`,
+      `No Círio, ${a} barcos já estavam na Baía do Guajará e mais ${b} chegaram depois.\nQuantos barcos ficaram na baía?`,
+      `A barraca de tacacá vendeu ${a} cuias de manhã e ${b} à noite.\nQuantas cuias de tacacá foram vendidas ao todo?`,
+      `No quintal tinha ${a} pés de cupuaçu e foram plantados mais ${b}.\nQuantos pés de cupuaçu ficaram ao todo?`,
+      `Seu Raimundo colheu ${a} maços de jambu na roça e mais ${b} no dia seguinte.\nQuantos maços de jambu ele colheu ao todo?`
+    ];
+    return {
+      text: templates[randInt(0, templates.length - 1)],
+      answer: String(answerNum),
+      options: numericOptions(answerNum),
+      noEquals: true
+    };
+  }
+
+  function genMult() {
+    if (Math.random() < 0.5) {
+      const a = randInt(2, 10), b = randInt(2, 10);
+      const answerNum = a * b;
+      return { text: `${a} × ${b}`, answer: String(answerNum), options: numericOptions(answerNum) };
+    }
+    const a = randInt(2, 10), b = randInt(2, 10);
+    const answerNum = a * b;
+    const templates = [
+      `Na feira tem ${a} cestos com ${b} camarões em cada um.\nQuantos camarões ao todo?`,
+      `${a} canoas saem do porto, cada uma levando ${b} sacas de açaí.\nQuantas sacas seguem viagem ao todo?`,
+      `Na barraca do Ver-o-Peso há ${a} caixas com ${b} maracujás cada.\nQuantos maracujás ao todo?`,
+      `${a} pescadores voltaram da pesca, cada um com ${b} peixes.\nQuantos peixes eles trouxeram ao todo?`,
+      `Dona Célia fez ${a} panelas de maniçoba, cada uma rendendo ${b} pratos.\nQuantos pratos de maniçoba ao todo?`,
+      `${a} cachos de bacuri têm ${b} frutas cada.\nQuantas frutas de bacuri ao todo?`,
+      `Na Feira do Açaí, ${a} sacos de castanha-do-pará têm ${b} kg cada.\nQuantos kg de castanha ao todo?`
+    ];
+    return {
+      text: templates[randInt(0, templates.length - 1)],
+      answer: String(answerNum),
+      options: numericOptions(answerNum),
+      noEquals: true
+    };
+  }
+
+  function genDiv() {
+    if (Math.random() < 0.5) {
+      const b = randInt(2, 10);
+      const answerNum = randInt(2, 10);
+      const a = b * answerNum;
+      return { text: `${a} ÷ ${b}`, answer: String(answerNum), options: numericOptions(answerNum) };
+    }
+    const b = randInt(2, 10);
+    const answerNum = randInt(2, 10);
+    const a = b * answerNum;
+    const templates = [
+      `Dona Maria pescou ${a} peixes e quer dividir igualmente entre ${b} canoas.\nQuantos peixes vão em cada canoa?`,
+      `${a} litros de tucupi foram divididos igualmente em ${b} potes.\nQuantos litros cabem em cada pote?`,
+      `Na festa do Círio, ${a} pães foram repartidos igualmente entre ${b} famílias.\nQuantos pães cada família recebeu?`,
+      `${a} sacas de farinha foram divididas igualmente entre ${b} canoas.\nQuantas sacas cada canoa levou?`,
+      `${a} cuias de tacacá foram divididas igualmente entre ${b} barracas.\nQuantas cuias cada barraca recebeu?`,
+      `${a} frutas de cupuaçu foram repartidas igualmente entre ${b} famílias ribeirinhas.\nQuantas frutas cada família recebeu?`
+    ];
+    return {
+      text: templates[randInt(0, templates.length - 1)],
+      answer: String(answerNum),
+      options: numericOptions(answerNum),
+      noEquals: true
+    };
+  }
+
+  function genAlgebra() {
+    const type = randInt(0, 2);
+
+    if (type === 0) {
+      // ax + bx = (a+b)x
+      const a = randInt(2, 9), b = randInt(2, 9);
+      const answerNum = a + b;
+      const format = n => `${n}x`;
+      const options = new Set([format(answerNum), format(a * b)]); // inclui erro comum (multiplicar em vez de somar)
+      while (options.size < 4) {
+        let delta = randInt(-4, 4); if (delta === 0) delta = 2;
+        let fake = answerNum + delta;
+        if (fake <= 0) fake = answerNum + Math.abs(delta) + 1;
+        options.add(format(fake));
+      }
+      return { text: `${a}x + ${b}x`, answer: format(answerNum), options: shuffleArr(Array.from(options)) };
+    }
+
+    if (type === 1) {
+      // ax + bx + cx = (a+b+c)x
+      const a = randInt(1, 6), b = randInt(1, 6), c = randInt(1, 6);
+      const answerNum = a + b + c;
+      const format = n => `${n}x`;
+      return { text: `${a}x + ${b}x + ${c}x`, answer: format(answerNum), options: numericOptions(answerNum, format) };
+    }
+
+    // type 2: multiplicação de x por x
+    const a = randInt(1, 8);
+    const format = n => (n === 1 ? 'x²' : `${n}x²`);
+    const text = a === 1 ? 'x × x' : `${a}x × x`;
+    return { text, answer: format(a), options: numericOptions(a, format) };
+  }
+
+  function genGeometria() {
+    const type = randInt(0, 1);
+
+    if (type === 0) {
+      // área do triângulo = (base × altura) / 2
+      const alturasPares = [4, 6, 8, 10, 12, 14, 16, 18, 20];
+      const height = alturasPares[randInt(0, alturasPares.length - 1)];
+      const base = randInt(3, 15);
+      const answerNum = (base * height) / 2;
+      const format = n => `${n} cm²`;
+      return {
+        text: `Base ${base} cm, altura ${height} cm.\nQual é a área?`,
+        answer: format(answerNum),
+        options: numericOptions(answerNum, format)
+      };
+    }
+
+    // perímetro do triângulo = a + b + c
+    const a = randInt(3, 15);
+    const b = randInt(3, 15);
+    let c = randInt(Math.abs(a - b) + 1, a + b - 1);
+    if (c < 1) c = 1;
+    const answerNum = a + b + c;
+    const format = n => `${n} cm`;
+    return {
+      text: `Lados: ${a} cm, ${b} cm e ${c} cm.\nQual é o perímetro?`,
+      answer: format(answerNum),
+      options: numericOptions(answerNum, format)
+    };
+  }
+
+  function genQuestion(op) {
+    let opKey = op;
+    if (op === 'misto') {
+      opKey = ['soma', 'mult', 'div', 'alg', 'geo'][randInt(0, 4)];
+    }
+    let result;
+    if (opKey === 'soma') result = genSoma();
+    else if (opKey === 'mult') result = genMult();
+    else if (opKey === 'div') result = genDiv();
+    else if (opKey === 'alg') result = genAlgebra();
+    else result = genGeometria();
+    result.opKey = opKey;
+    return result;
+  }
+
+  // ---------- GAME LOGIC ----------
+  function startGame(op) {
+    const cfg = OPS[op];
+    document.documentElement.style.setProperty('--op-color', cfg.color);
+    document.documentElement.style.setProperty('--op-dark', cfg.dark);
+
+    state = {
+      op, cfg,
+      qIndex: 0,
+      score: 0,
+      lives: 3,
+      streak: 0,
+      bestStreak: 0,
+      correctCount: 0,
+      timerHandle: null,
+      timerStart: null,
+    };
+
+    $('screen-start').classList.add('hidden');
+    $('screen-end').classList.add('hidden');
+    $('screen-game').classList.remove('hidden');
+
+    updateHud();
+    updateTrail();
+    nextQuestion();
+  }
+
+  function updateHud() {
+    $('score-val').textContent = state.score;
+    $('streak-val').textContent = state.streak;
+    $('hearts').textContent = '❤️'.repeat(state.lives) + '🖤'.repeat(3 - state.lives);
+  }
+
+  function updateTrail() {
+    const pct = Math.min(100, (state.qIndex / TOTAL_QUESTIONS) * 100);
+    $('trail-fill').style.width = pct + '%';
+    $('rocket-icon').style.left = pct + '%';
+    for (let i = 1; i <= 4; i++) {
+      const threshold = i * 25;
+      $('planet-' + i).classList.toggle('done', pct >= threshold - 0.01);
+    }
+  }
+
+  function nextQuestion() {
+    clearTimeout(state.timerHandle);
+    $('feedback-msg').textContent = '\u00a0';
+
+    if (state.qIndex >= TOTAL_QUESTIONS || state.lives <= 0) {
+      endGame();
+      return;
+    }
+
+    const q = genQuestion(state.op);
+    state.currentQ = q;
+    $('question-label').textContent = OPS[state.op].label.toUpperCase() + ` · ${state.qIndex + 1}/${TOTAL_QUESTIONS}`;
+
+    const qText = $('question-text');
+    const isStory = q.opKey === 'geo' || q.noEquals;
+    const displayText = isStory ? q.text : `${q.text} = ?`;
+    qText.textContent = displayText;
+    qText.classList.toggle('long-text', displayText.length > 14 || isStory);
+
+    const answersEl = $('answers');
+    answersEl.innerHTML = '';
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      if (String(opt).length > 4) btn.classList.add('small-text');
+      btn.textContent = opt;
+      btn.addEventListener('click', () => selectAnswer(btn, opt));
+      answersEl.appendChild(btn);
+    });
+
+    runTimer();
+  }
+
+  function runTimer() {
+    const bar = $('timer-bar');
+    bar.style.transition = 'none';
+    bar.style.transform = 'scaleX(1)';
+    // force reflow
+    void bar.offsetWidth;
+    bar.style.transition = `transform ${TIME_PER_Q}ms linear`;
+    bar.style.transform = 'scaleX(0)';
+
+    state.timerHandle = setTimeout(() => {
+      handleTimeout();
+    }, TIME_PER_Q);
+  }
+
+  function handleTimeout() {
+    playTimeout();
+    const answersEl = $('answers');
+    Array.from(answersEl.children).forEach(btn => {
+      btn.disabled = true;
+      if (btn.textContent === state.currentQ.answer) btn.classList.add('correct');
+    });
+    state.streak = 0;
+    state.lives -= 1;
+    $('feedback-msg').textContent = `⏰ Arre, tempo esgotado! Era ${state.currentQ.answer}.`;
+    updateHud();
+    setTimeout(() => {
+      state.qIndex += 1;
+      updateTrail();
+      nextQuestion();
+    }, 1100);
+  }
+
+  function selectAnswer(btn, value) {
+    clearTimeout(state.timerHandle);
+    const answersEl = $('answers');
+    Array.from(answersEl.children).forEach(b => b.disabled = true);
+
+    const correct = value === state.currentQ.answer;
+    if (correct) {
+      playCorrect();
+      btn.classList.add('correct');
+      state.score += 10 + state.streak * 2;
+      state.streak += 1;
+      state.bestStreak = Math.max(state.bestStreak, state.streak);
+      state.correctCount += 1;
+      const msgs = ['Égua, mandou bem! 🎯', 'Arretado! 🛶', 'Isso aí, meu rei! ✨', 'Rio abaixo, sem erro! 🌊'];
+      $('feedback-msg').textContent = msgs[randInt(0, msgs.length - 1)];
+    } else {
+      playWrong();
+      btn.classList.add('wrong');
+      Array.from(answersEl.children).forEach(b => {
+        if (b.textContent === state.currentQ.answer) b.classList.add('correct');
+      });
+      state.streak = 0;
+      state.lives -= 1;
+      $('feedback-msg').textContent = `Vixe, quase! Era ${state.currentQ.answer}.`;
+    }
+
+    updateHud();
+    setTimeout(() => {
+      state.qIndex += 1;
+      updateTrail();
+      nextQuestion();
+    }, 1000);
+  }
+
+  function endGame() {
+    clearTimeout(state.timerHandle);
+    $('screen-game').classList.add('hidden');
+    $('screen-end').classList.remove('hidden');
+
+    const total = state.qIndex;
+    const ratio = total > 0 ? state.correctCount / total : 0;
+    let stars = 1;
+    if (ratio >= 0.9) stars = 3;
+    else if (ratio >= 0.6) stars = 2;
+    if (state.lives <= 0) stars = Math.min(stars, 1);
+
+    $('end-stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+    $('end-score').textContent = state.score;
+    $('end-correct').textContent = `${state.correctCount}/${total}`;
+    $('end-best-streak').textContent = state.bestStreak;
+
+    let title, msg;
+    if (state.lives <= 0) {
+      title = 'A canoa precisou parar!';
+      msg = 'Sem problema, égua, todo remador treina bastante. Bora de novo!';
+    } else if (stars === 3) {
+      title = 'Viagem arretada, comandante!';
+      msg = 'Você dominou essa parada, bicho! Bora seguir pro próximo trecho do rio?';
+    } else if (stars === 2) {
+      title = 'Ótima viagem!';
+      msg = 'Você foi bem demais. Mais um pouco de treino e chega às 3 estrelas.';
+    } else {
+      title = 'Viagem concluída!';
+      msg = 'Continue navegando, égua, cada tentativa te deixa mais rápido.';
+    }
+    $('end-title').textContent = title;
+    $('end-msg').textContent = msg;
+  }
+})();
+</script>
+</body>
+</html>
